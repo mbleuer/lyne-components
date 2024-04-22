@@ -2,6 +2,192 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.51.0](https://github.com/mbleuer/lyne-components/compare/v0.50.2...v0.51.0) (2024-04-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* The entry points for the `@sbb-esta/lyne-components` have changed from extension-less to including the extension (e.g. `@sbb-esta/lyne-components/button` to `@sbb-esta/lyne-components/button.js`).
+* **sbb-dialog:** The `sbb-dialog` component now needs the dedicated inner elements `sbb-dialog-title`, `sbb-dialog-content`, and `sbb-dialog-actions`. Use these components to respectively provide a title, a content and, optionally, a footer with an action group. Moreover, the full-screen variant (which occurred when no title was provided to the dialog) has been removed. To achieve a full-screen overlay, please use the new `sbb-overlay` component. As a migration help, consider the following example. Old: ```<sbb-dialog title-content="Title"><p>Dialog content.</p><sbb-action-group slot="action-group">...</sbb-action-group></sbb-dialog>```. New: ```<sbb-dialog><sbb-dialog-title>Title</sbb-dialog-title><sbb-dialog-content><p>Dialog content</p></sbb-dialog-content><sbb-dialog-actions>...</sbb-dialog-actions></sbb-dialog>```. Previously, a full-screen dialog was displayed if no title was provided to the dialog component: ```<sbb-dialog><p>Dialog content.</p></sbb-dialog>```. To achieve the same, it is now mandatory to use the `sbb-overlay` component: ```<sbb-overlay><p>Overlay content.</p></sbb-overlay>```.
+* Changed several internal class names. Consumers shouldn't be affected.
+* **sbb-form-field:** The css var `--sbb-form-field-height` has been renamed to `--sbb-form-field-min-height`.
+* **sbb-form-field:** `label` property and attribute of `<sbb-form-field>` was removed. Use `<label>` tag inside `<sbb-form-field>` to provide the label information. E.g. `<sbb-form-field label="Example">...</sbb-form-field>` becomes `<sbb-form-field><label>Example</label>...</sbb-form-field>`
+* renamed component `sbb-screenreader-only` to `sbb-screeen-reader-only`.
+* **sbb-calendar:** 
+* **sbb-navigation:** The `active` property of `<sbb-navigation-button>`/`<sbb-navigation-link>` (former `<sbb-navigation-action>`) has been removed. Add the CSS class `sbb-active` to the corresponding button/link, to mark it as active. Additionally, whenever `sbb-active` class is set in navigation, the corresponding navigation section, if one is connected, automatically opens.
+* The action element refactoring brings a couple of breaking changes:
+    - The following components have been split into two components. One with pure button and one with pure link behavior:
+        - `sbb-card-action`: split in `sbb-card-button` and `sbb-card-link`
+        - `sbb-header-action`: split in `sbb-header-button` and `sbb-header-link`
+        - `sbb-menu-action`: split in `sbb-menu-button` and `sbb-menu-link`
+        - `sbb-navigation-action`: split in `sbb-navigation-button` and `sbb-navigation-link`
+    - The `isStatic` flag has been removed from buttons and links; since the static case was automatically detected when action elements were nested in other action elements, now you need to check for usage of nested buttons/links in other action elements and possibly fix them using the new static variants.
+    - `sbb-button`: the `variant` property has been removed and for each value, a new component has been created (e.g. `sbb-button`, `sbb-secondary-button`, `sbb-tertiary-button`, `sbb-transparent-button`); each of them has been further divided considering the behavior: 
+      - If the component was used as a button (no `href` set), replace it with `<sbb{-variant}-button>`
+      - If the component was used as a link (`href` set), replace it with `<sbb{-variant}-button-link>`
+      - If the component was nested into another action element (`isStatic` set), replace it with `<sbb{-variant}-button-static>`
+    - The usage of an icon-only `sbb-button` in a `sbb-form-field` is not supported anymore; a new component named `sbb-mini-button` has been created to handle this specific case
+    - Check and replace any `sbb-button` in `sbb-toast` with the new `sbb-transparent-button`/`sbb-transparent-button-link`, since the variant is not automatically set anymore
+    - `sbb-link` has been split into nine components, based on type and variant:
+      - If `sbb-link` had an `[href="..."]`, it migrates to `<sbb{-variant}-link>`:
+        - `<sbb-link href="...">` should be replaced with `<sbb-block-link href="...">`
+        - `<sbb-link href="..." variant="block">` should be replaced with `<sbb-block-link href="...">`
+        - `<sbb-link href="..." variant="inline" >` should be replaced with `<sbb-link href="...">` 
+      - If `sbb-link` did not have an `[href="..."]`, it migrates to `<sbb{-variant}-link-button>`
+        - `<sbb-link>` should be replaced with `<sbb-block-link-button>`
+        - `<sbb-link variant="block">` should be replaced with `<sbb-block-link-button>`
+        - `<sbb-link variant="inline">` should be replaced with `<sbb-link-button>`
+      - If `sbb-link` had an `[is-static]`, it migrates to `<sbb{-variant}-link-static>`
+        - `<sbb-link is-static>` should be replaced with `<sbb-block-link-static>`
+        - `<sbb-link is-static variant="block">` should be replaced with `<sbb-block-link-static>`
+        - `<sbb-link is-static variant="inline">` should be replaced with `<sbb-link-static>`
+    - `sbb-action-group` now only accepts `sbb-block-link | sbb-block-link-button` besides any `<sbb-button>` variant
+    - `sbb-link-list` now only accepts `sbb-block-link | sbb-block-link-button`
+    - `sbb-skiplink-list` now only accepts `sbb-block-link | sbb-block-link-button`
+    - `sbb-toast` now only accepts `sbb-link | sbb-link-button | sbb-transparent-button | sbb-transparent-button-link`
+    - SASS mixin renamings:
+      - `link-variables` SASS mixin renamed to `block-link-variables`,
+      - `link-variables--negative` SASS mixin renamed to `block-link-variables--negative`,
+      - `link-variables--inline` SASS mixin renamed to `link-variables`,
+      - `link-variables--inline-negative` SASS mixin renamed to `link-variables--negative`
+      - `link-inline-consolidation` SASS mixin renamed to `link-consolidation`,
+      - `link-inline` SASS mixin renamed to `link`,
+      - `link-inline-negative` SASS mixin renamed to `link-negative`
+* **color:** Removed 'default' suffix from color tokens (e.g. `--sbb-color-iron-default` => `--sbb-color-iron` and `SbbColorIronDefault` => `SbbColorIron`).
+* **multiple:** rename type `TitleLevel` to `SbbTitleLevel`
+* **sbb-image:** property `noBorderRadius` has been replaced by `borderRadius` which can receive 'default', 'none' and 'round'.
+* **sbb-popover:** Component `sbb-tooltip` has been renamed to `sbb-popover`. Component `sbb-tooltip-trigger` has been renamed to `sbb-popover-trigger` Attribute `sbb-tooltip-close` has been renamed to `sbb-popover-close`. Every CSS tooltip variable has been renamed from `--sbb-tooltip-*` to `--sbb-popover-*` (including trigger).
+* **sbb-alert:** renamed `willPresent` event to `willOpen` and `didPresent` to `didOpen`.
+* **sbb-teaser:** The property `isStacked` has been removed in favor of `alignment`. Please see the documentation for further info. The `description` is not clamped to two lines anymore (responsibility of consumer). The slotted `image` has now a default width of `300px`. The slot, formerly named `description`, has been replaced by the unnamed slot. Support of nested `p` elements dropped (invalid html).
+* The following components have been removed: `sbb-timetable-barrier-free`, `sbb-timetable-park-and-rail`, `sbb-timetable-row-column-headers`, `sbb-timetable-row-day-change`, `sbb-timetable-row-header`, `sbb-timetable-transportation-number`, `sbb-timetable-transportation-time`, `timetable-travel-hints`.
+
+### Features
+
+* **a11y:** implemented a11y tree snapshot function ([#2378](https://github.com/mbleuer/lyne-components/issues/2378)) ([3484e7b](https://github.com/mbleuer/lyne-components/commit/3484e7b19118075d9ea1e90e4cb95c4b6c6e7d27))
+* button variant refactoring ([98ea7f5](https://github.com/mbleuer/lyne-components/commit/98ea7f541e457da982f0c23a427e324aba9332cf))
+* **button:** implemented size 'S' ([#2544](https://github.com/mbleuer/lyne-components/issues/2544)) ([396d4dc](https://github.com/mbleuer/lyne-components/commit/396d4dc00749c1335ec86128571ac31b2a8f875f))
+* **form-field:** allow label to be visually hidden ([#2361](https://github.com/mbleuer/lyne-components/issues/2361)) ([9f618db](https://github.com/mbleuer/lyne-components/commit/9f618db1980e83ea1e985c6560b599d6504471ce))
+* implement experimental support for server side rendering (SSR) ([#2466](https://github.com/mbleuer/lyne-components/issues/2466)) ([3abcc68](https://github.com/mbleuer/lyne-components/commit/3abcc6827a3152c7216c3a2178e63a19f96ba22b))
+* implement initial support for SSR ([#2437](https://github.com/mbleuer/lyne-components/issues/2437)) ([39d37ca](https://github.com/mbleuer/lyne-components/commit/39d37ca31112617b206bdd15053cafd89886267f))
+* increase `--sbb-font-size-title-5` for zero to small breakpoints ([#2448](https://github.com/mbleuer/lyne-components/issues/2448)) ([15b786a](https://github.com/mbleuer/lyne-components/commit/15b786aae95fbd92cb4b9584d3b37b959df9bc27))
+* provide full font characters set as alternative ([#2573](https://github.com/mbleuer/lyne-components/issues/2573)) ([4047883](https://github.com/mbleuer/lyne-components/commit/40478831addeb79dc92cabc52b9d0665dd37a195))
+* **sbb-alert:** add size s ([#2591](https://github.com/mbleuer/lyne-components/issues/2591)) ([3a82c67](https://github.com/mbleuer/lyne-components/commit/3a82c6733f8c78180cbf236dea1362aa623faddb))
+* **sbb-card:** introduce new color for active state ([#2462](https://github.com/mbleuer/lyne-components/issues/2462)) ([6553d6b](https://github.com/mbleuer/lyne-components/commit/6553d6b1f21d3f05aa8be2c514fa12a4a61da7a7))
+* **sbb-checkbox, sbb-toggle-check:** introduce native form support ([#2456](https://github.com/mbleuer/lyne-components/issues/2456)) ([c9549a1](https://github.com/mbleuer/lyne-components/commit/c9549a10abb527812caefb03b637817bc426e02a))
+* **sbb-clock:** introduce option to configure color of seconds hand ([#2400](https://github.com/mbleuer/lyne-components/issues/2400)) ([b94d92d](https://github.com/mbleuer/lyne-components/commit/b94d92da4d6ae20e540fbfe9b018514d0abcdd42))
+* **sbb-container:** first implementation ([#2271](https://github.com/mbleuer/lyne-components/issues/2271)) ([7403b67](https://github.com/mbleuer/lyne-components/commit/7403b67fb89e4ebd3d301ce084e19766ad7bfc48))
+* **sbb-form-field:** support the textarea inside the `&lt;sbb-form-field&gt;` ([#2506](https://github.com/mbleuer/lyne-components/issues/2506)) ([f8316f0](https://github.com/mbleuer/lyne-components/commit/f8316f074a36fe91c46d36ace2f5ebb2194e1e3a)), closes [#2497](https://github.com/mbleuer/lyne-components/issues/2497)
+* **sbb-image:** introduce support for round variant ([#2401](https://github.com/mbleuer/lyne-components/issues/2401)) ([971bd5c](https://github.com/mbleuer/lyne-components/commit/971bd5c5a407f5550a633c222195e98eaf89befb))
+* **sbb-navigation:** remove navigation section divider ([#2473](https://github.com/mbleuer/lyne-components/issues/2473)) ([71c1412](https://github.com/mbleuer/lyne-components/commit/71c141212be8aaea32e3c471830420de93f4366e))
+* **sbb-overlay:** extract `sbb-overlay` component from dialog ([#2477](https://github.com/mbleuer/lyne-components/issues/2477)) ([5ea4fb7](https://github.com/mbleuer/lyne-components/commit/5ea4fb79c98495cf7859c99a3b16778a633c81d7)), closes [#2476](https://github.com/mbleuer/lyne-components/issues/2476) [#2470](https://github.com/mbleuer/lyne-components/issues/2470)
+* **sbb-screenreader-only:** initial implementation ([#2377](https://github.com/mbleuer/lyne-components/issues/2377)) ([2e763d4](https://github.com/mbleuer/lyne-components/commit/2e763d4454ef71c4707767a3962f6735a9e34f1f))
+* **sbb-selection-panel:** increase border width for active state ([#2463](https://github.com/mbleuer/lyne-components/issues/2463)) ([4c4bf5c](https://github.com/mbleuer/lyne-components/commit/4c4bf5c2f1487d1667833dff4575786fbe176152)), closes [#2461](https://github.com/mbleuer/lyne-components/issues/2461)
+* **sbb-status:** allow custom icons ([#2403](https://github.com/mbleuer/lyne-components/issues/2403)) ([56b4068](https://github.com/mbleuer/lyne-components/commit/56b4068781bdea5540a4fcdb1c43c8a20632d0f4)), closes [#2398](https://github.com/mbleuer/lyne-components/issues/2398)
+* **sbb-status:** component implementation ([#2262](https://github.com/mbleuer/lyne-components/issues/2262)) ([8e1da55](https://github.com/mbleuer/lyne-components/commit/8e1da55cb08aaa56ede9083ba5820f6e30d7038d))
+* **sbb-sticky-bar:** allow configuration of z-index ([#2566](https://github.com/mbleuer/lyne-components/issues/2566)) ([20a98b2](https://github.com/mbleuer/lyne-components/commit/20a98b2c126c4eccfc15c039b13da57df717a1e3))
+* **sbb-sticky-bar:** allow overlapping to the following content ([#2459](https://github.com/mbleuer/lyne-components/issues/2459)) ([9518dfd](https://github.com/mbleuer/lyne-components/commit/9518dfd82c6660f0601dac5bcb63898ed0499170))
+* **sbb-teaser-paid:** first implementation ([#2434](https://github.com/mbleuer/lyne-components/issues/2434)) ([68f807a](https://github.com/mbleuer/lyne-components/commit/68f807ad39f18d1e50094c1162c931e88cb0d3ea))
+* **sbb-teaser:** redesign ([#2211](https://github.com/mbleuer/lyne-components/issues/2211)) ([ba5f86c](https://github.com/mbleuer/lyne-components/commit/ba5f86c44e27b55256f8ff4e064edeb379b226a6))
+* update journey-summary storybook title ([#2390](https://github.com/mbleuer/lyne-components/issues/2390)) ([3469654](https://github.com/mbleuer/lyne-components/commit/3469654a81e1b33b5b3e5505b547953164ee15c1))
+* update size tokens ([#2551](https://github.com/mbleuer/lyne-components/issues/2551)) ([74d8929](https://github.com/mbleuer/lyne-components/commit/74d892927ff7d52536833e5502b31078716fbeac))
+
+
+### Bug Fixes
+
+* adapt lyne tokens change ([#2582](https://github.com/mbleuer/lyne-components/issues/2582)) ([94bf4f0](https://github.com/mbleuer/lyne-components/commit/94bf4f069688cc958a34beb2e4337822cf70cd9a))
+* adapt react package import paths missed during migration ([#2589](https://github.com/mbleuer/lyne-components/issues/2589)) ([0781c6a](https://github.com/mbleuer/lyne-components/commit/0781c6a3a2a69dce800a3106908b9d9c694d26df))
+* adopt sass import guidelines ([#2340](https://github.com/mbleuer/lyne-components/issues/2340)) ([f585122](https://github.com/mbleuer/lyne-components/commit/f58512235fe1b7990777e5f85520d31392b64539)), closes [#2307](https://github.com/mbleuer/lyne-components/issues/2307)
+* fix boolean handling in react wrapper ([#2547](https://github.com/mbleuer/lyne-components/issues/2547)) ([e4ba04b](https://github.com/mbleuer/lyne-components/commit/e4ba04b8144b2fa391cf9b406df28033832d319c))
+* fix button dts files ([#2485](https://github.com/mbleuer/lyne-components/issues/2485)) ([2228a02](https://github.com/mbleuer/lyne-components/commit/2228a0255cdd205c3891dc6a12278e39584fc793))
+* fix imports of common styles ([#2475](https://github.com/mbleuer/lyne-components/issues/2475)) ([fda1960](https://github.com/mbleuer/lyne-components/commit/fda1960be53fe0884f105dea8cdeef2215cfd787))
+* fix order of class decorators ([#2489](https://github.com/mbleuer/lyne-components/issues/2489)) ([580b56f](https://github.com/mbleuer/lyne-components/commit/580b56fbfcb020c21b96d639ecec45f717c7abdd))
+* fix scrollbar styles for Chrome ([#2524](https://github.com/mbleuer/lyne-components/issues/2524)) ([1266a21](https://github.com/mbleuer/lyne-components/commit/1266a2197237eee1712896b7e5959658a3956193))
+* fix SSR of sbb-select ([#2341](https://github.com/mbleuer/lyne-components/issues/2341)) ([c46e63e](https://github.com/mbleuer/lyne-components/commit/c46e63ea8ebcb40696389f1151d5a72aac17967e))
+* fix unresolved sass imports ([#2483](https://github.com/mbleuer/lyne-components/issues/2483)) ([964ab42](https://github.com/mbleuer/lyne-components/commit/964ab421bcbfb67061fe13dbe4970bae857e92c7))
+* fix using of new Date() ([#2315](https://github.com/mbleuer/lyne-components/issues/2315)) ([9f69606](https://github.com/mbleuer/lyne-components/commit/9f696061a32aae09f6d944697d4facaf339eb361))
+* improve creation of react component ([#2337](https://github.com/mbleuer/lyne-components/issues/2337)) ([a64a3eb](https://github.com/mbleuer/lyne-components/commit/a64a3eb54ac252f3e668c45d414a14e07a185fac))
+* improve SSR handling of React components with children ([#2306](https://github.com/mbleuer/lyne-components/issues/2306)) ([da0c1c5](https://github.com/mbleuer/lyne-components/commit/da0c1c5deaf7c970da7c532df665f32322bcbe28))
+* **layout:** apply max-width only for ultra screen size ([#2458](https://github.com/mbleuer/lyne-components/issues/2458)) ([cce71b2](https://github.com/mbleuer/lyne-components/commit/cce71b2cf062a47a8beb24d77d26f5c842133647))
+* **multiple:** render lists with just one element as span ([#2381](https://github.com/mbleuer/lyne-components/issues/2381)) ([e703be1](https://github.com/mbleuer/lyne-components/commit/e703be1eb29c73fd8fe5ce4cc033373a0aefab84))
+* prevent re-rendering during update ([#2343](https://github.com/mbleuer/lyne-components/issues/2343)) ([b3e7a02](https://github.com/mbleuer/lyne-components/commit/b3e7a02ede8a26f9ec3ceb35156f4f9d080a0689))
+* **react-wrapper:** avoid writing classname property on a component ([#2421](https://github.com/mbleuer/lyne-components/issues/2421)) ([1ee492e](https://github.com/mbleuer/lyne-components/commit/1ee492ed303563fb53b525cd79e711796088cc3f))
+* remove setTimeout from SlotChildObserver ([#2334](https://github.com/mbleuer/lyne-components/issues/2334)) ([4905c9b](https://github.com/mbleuer/lyne-components/commit/4905c9b71f848cc2f5778d73a60d183a7cf35dda))
+* remove side effects entries from package.json ([d45c2cb](https://github.com/mbleuer/lyne-components/commit/d45c2cbe729bd24017b67ba6ec4c5b59a8bcdc7f))
+* **sbb-alert:** refactor animation to properly work in Safari ([#2394](https://github.com/mbleuer/lyne-components/issues/2394)) ([30bf7c1](https://github.com/mbleuer/lyne-components/commit/30bf7c1f3f9e662f2430b6815f1b3d518e47043b)), closes [#2389](https://github.com/mbleuer/lyne-components/issues/2389)
+* **sbb-autocomplete:** highlight option when options change ([#2317](https://github.com/mbleuer/lyne-components/issues/2317)) ([76affb1](https://github.com/mbleuer/lyne-components/commit/76affb1e07a288b2f02eda7bc2656d06291e53e0))
+* **sbb-button:** remove gap for hidden icons in icon slot ([#2526](https://github.com/mbleuer/lyne-components/issues/2526)) ([433c57c](https://github.com/mbleuer/lyne-components/commit/433c57c5c5533ebb6409d3be5c47fec1fdd3aac6))
+* **sbb-calendar:** align month view label ([#2564](https://github.com/mbleuer/lyne-components/issues/2564)) ([0215e00](https://github.com/mbleuer/lyne-components/commit/0215e00d9aad145b1f5d26b1b00470c79c8e8640))
+* **sbb-calendar:** using keyboard navigation loses focus ([#2354](https://github.com/mbleuer/lyne-components/issues/2354)) ([68be709](https://github.com/mbleuer/lyne-components/commit/68be709fa4530afc505c193112d5fa0e15ea238d))
+* **sbb-checkbox, sbb-toggle-check:** enable attribute mutation after form reset ([#2505](https://github.com/mbleuer/lyne-components/issues/2505)) ([6bd8924](https://github.com/mbleuer/lyne-components/commit/6bd892499aa3745ffa9dc52fecc3d8a392a35914))
+* **sbb-container:** container causes interference with overlay components ([#2419](https://github.com/mbleuer/lyne-components/issues/2419)) ([099164c](https://github.com/mbleuer/lyne-components/commit/099164c1fca0293a951f019ec953f7eaeaa5a845))
+* **sbb-container:** remove overflowing margin without using overflow ([#2427](https://github.com/mbleuer/lyne-components/issues/2427)) ([42b7da3](https://github.com/mbleuer/lyne-components/commit/42b7da313ae59eced55adac0313e8ac944201665))
+* **sbb-dialog:** fix accessibility with option to hide the header on scroll ([159f536](https://github.com/mbleuer/lyne-components/commit/159f536b429350ac54cd28bd55cb63754a423a11))
+* **sbb-dialog:** fix z-index ([#2572](https://github.com/mbleuer/lyne-components/issues/2572)) ([374d7b7](https://github.com/mbleuer/lyne-components/commit/374d7b7ed88ef2e97656417e6266ac20a11d1881))
+* **sbb-form-error:** fix internal css variable name ([#2558](https://github.com/mbleuer/lyne-components/issues/2558)) ([cc275af](https://github.com/mbleuer/lyne-components/commit/cc275afb7fc8066723738bebaf3f61fb90bdf22e))
+* **sbb-form-field:** remove label property and attribute ([#2523](https://github.com/mbleuer/lyne-components/issues/2523)) ([602064c](https://github.com/mbleuer/lyne-components/commit/602064c3d0ff4092c94b8faec4f95c1c1ae3bbb0))
+* **sbb-form-field:** suppress firefox outline for external framework compatibility ([#2386](https://github.com/mbleuer/lyne-components/issues/2386)) ([6374162](https://github.com/mbleuer/lyne-components/commit/6374162c465f4c68ca582c75557166f1484b289f))
+* **sbb-header:** fix border radius of focus outline in Safari ([#2365](https://github.com/mbleuer/lyne-components/issues/2365)) ([aa409e7](https://github.com/mbleuer/lyne-components/commit/aa409e743b29e97a54b02eb66a55ca385974e97d))
+* **sbb-header:** fix header shadow on keyboard navigation ([#2508](https://github.com/mbleuer/lyne-components/issues/2508)) ([3eefbea](https://github.com/mbleuer/lyne-components/commit/3eefbea158d28d54ed18b2a650c7ae7155fd1c42))
+* **sbb-header:** shows the header if it has visible focus within ([#2237](https://github.com/mbleuer/lyne-components/issues/2237)) ([37061ad](https://github.com/mbleuer/lyne-components/commit/37061ad1703c4d5661c3ab5270124a652012cd58))
+* **sbb-icon:** fix preserving space during loading ([#2308](https://github.com/mbleuer/lyne-components/issues/2308)) ([2a01652](https://github.com/mbleuer/lyne-components/commit/2a01652bfa5d206583e5e411b97bc0aed55818a5))
+* **sbb-journey-header:** add non breaking space for screen readers ([#2304](https://github.com/mbleuer/lyne-components/issues/2304)) ([81a2c0a](https://github.com/mbleuer/lyne-components/commit/81a2c0aa2e5e0a538c0d0dc7f2efcccee9ee0804))
+* **sbb-map-container:** adapt width starting from ultra breakpoint ([#2417](https://github.com/mbleuer/lyne-components/issues/2417)) ([3c55d0c](https://github.com/mbleuer/lyne-components/commit/3c55d0c8fd5ac0355cf60951c2038abacd269b57))
+* **sbb-map-container:** add scrollbar background and divider line ([#2316](https://github.com/mbleuer/lyne-components/issues/2316)) ([4b0f765](https://github.com/mbleuer/lyne-components/commit/4b0f7653341d131731da24824c7081bfcf02c3ad))
+* **sbb-navigation-section:** ensure `sbb-active` initializes correctly ([#2493](https://github.com/mbleuer/lyne-components/issues/2493)) ([baede50](https://github.com/mbleuer/lyne-components/commit/baede50909c745f5d74d55722c0bc6db12701454))
+* **sbb-navigation:** fix active and focus handling ([#2471](https://github.com/mbleuer/lyne-components/issues/2471)) ([ea81790](https://github.com/mbleuer/lyne-components/commit/ea81790cb49dfd2f05d93df1cbd93702c1757274))
+* **sbb-navigation:** fix navigation actions contrast ratio ([#2481](https://github.com/mbleuer/lyne-components/issues/2481)) ([f605a1e](https://github.com/mbleuer/lyne-components/commit/f605a1ed48d27df4a3cc5dfe4f4cdddff36d8b5f))
+* **sbb-notification:** border left stability ([#2330](https://github.com/mbleuer/lyne-components/issues/2330)) ([0cae556](https://github.com/mbleuer/lyne-components/commit/0cae55695c75318beb16de122bae5743c6241b45))
+* **sbb-notification:** delay removal of notification after closing ([#2333](https://github.com/mbleuer/lyne-components/issues/2333)) ([63ba57c](https://github.com/mbleuer/lyne-components/commit/63ba57c5a5f0523044e0d9b4428269aa338118b2))
+* **sbb-notification:** fix accessibility ([#2325](https://github.com/mbleuer/lyne-components/issues/2325)) ([00e9540](https://github.com/mbleuer/lyne-components/commit/00e9540480758b4cfff690d3ed8ec81018e947ee))
+* **sbb-notification:** fix notification animation ([#2274](https://github.com/mbleuer/lyne-components/issues/2274)) ([5272043](https://github.com/mbleuer/lyne-components/commit/52720433b19427b72f3bd1492ac047c2b2bacc5d))
+* **sbb-overlay:** consider sbb-overlay as overlay in inert mechanism ([#2588](https://github.com/mbleuer/lyne-components/issues/2588)) ([4ecc125](https://github.com/mbleuer/lyne-components/commit/4ecc1254f79bfc95af2aa66c1021c507c6e7db2f))
+* **sbb-pearl-chain-time:** use role paragraph for accessibility reasons ([#2424](https://github.com/mbleuer/lyne-components/issues/2424)) ([9009807](https://github.com/mbleuer/lyne-components/commit/90098076117c722cad853912b52503b2bc44963b))
+* **sbb-popover:** rename tooltip to popover and fix accessibility bugs ([#2368](https://github.com/mbleuer/lyne-components/issues/2368)) ([70c1c07](https://github.com/mbleuer/lyne-components/commit/70c1c07965e2c4f7eac431628b8a432cea384207)), closes [#2018](https://github.com/mbleuer/lyne-components/issues/2018)
+* **sbb-radio-group, sbb-tab-group:** avoid incorrect setup if component is invisible during init ([#2446](https://github.com/mbleuer/lyne-components/issues/2446)) ([1586137](https://github.com/mbleuer/lyne-components/commit/158613728058d084c9c89d91a571d6a5311d876a))
+* **sbb-select:** fix hydration timing issue ([#2301](https://github.com/mbleuer/lyne-components/issues/2301)) ([7c52c9a](https://github.com/mbleuer/lyne-components/commit/7c52c9abee9962fd5973e63e06caf2d809bda317))
+* **sbb-select:** hide placeholder when using floating label in HCM ([#2399](https://github.com/mbleuer/lyne-components/issues/2399)) ([dd38d13](https://github.com/mbleuer/lyne-components/commit/dd38d1325415a1297b47a0679cfbe538721d6a5a)), closes [#2326](https://github.com/mbleuer/lyne-components/issues/2326)
+* **sbb-selection-panel:** fix transition of border-width ([#2468](https://github.com/mbleuer/lyne-components/issues/2468)) ([8300b7f](https://github.com/mbleuer/lyne-components/commit/8300b7f072ac78f68943de57c972ec63b6ea1a51))
+* **sbb-selection-panel:** fix transition of border-width [second attempt] ([#2469](https://github.com/mbleuer/lyne-components/issues/2469)) ([942bf45](https://github.com/mbleuer/lyne-components/commit/942bf4548f8c1ae0498700d24697f45de00de98c))
+* **sbb-select:** let promise of update cycle complete ([5086cd6](https://github.com/mbleuer/lyne-components/commit/5086cd6db157a4c328025a3e590dfd14794ebb1e))
+* **sbb-select:** wait for shadow DOM readiness before setup when using nextjs ([#2409](https://github.com/mbleuer/lyne-components/issues/2409)) ([fbef967](https://github.com/mbleuer/lyne-components/commit/fbef9675929e84d05708d4317704ade3f4f3a732))
+* **sbb-status:** add index export ([03349f0](https://github.com/mbleuer/lyne-components/commit/03349f02408d84f78810c6c8b14e944e188b128a))
+* **sbb-status:** fix flex behavior in Firefox ([#2479](https://github.com/mbleuer/lyne-components/issues/2479)) ([92d7492](https://github.com/mbleuer/lyne-components/commit/92d74927bf02b4873c468b2c641d861ab5cbacb1))
+* **sbb-status:** fix text styling ([#2457](https://github.com/mbleuer/lyne-components/issues/2457)) ([292d316](https://github.com/mbleuer/lyne-components/commit/292d316ca94db90ba5ea1a87f40c4a3d1aaf0b54))
+* **sbb-sticky-bar:** remove unnecessary import to container ([#2406](https://github.com/mbleuer/lyne-components/issues/2406)) ([c935436](https://github.com/mbleuer/lyne-components/commit/c9354363567afe84ecce8cee870ec66fc75bb367))
+* **sbb-teaser-hero:** use auto hyphens for title text to avoid overflow ([#2581](https://github.com/mbleuer/lyne-components/issues/2581)) ([3b8844c](https://github.com/mbleuer/lyne-components/commit/3b8844c2311f27e238ba73812a6a3c01abb2a5a3))
+* **sbb-teaser:** prevent overlapping chip if including long content ([#2450](https://github.com/mbleuer/lyne-components/issues/2450)) ([b78b3ce](https://github.com/mbleuer/lyne-components/commit/b78b3ce68aa2480885dc77b0dc446eed3374b39e))
+* **sbb-title:** move font-smoothing into scss mixin ([#2355](https://github.com/mbleuer/lyne-components/issues/2355)) ([331bac3](https://github.com/mbleuer/lyne-components/commit/331bac31a51550ec672d3b3ec4589003cb2b8a56))
+* **sbb-toast:** fix default z-index ([#2428](https://github.com/mbleuer/lyne-components/issues/2428)) ([d0927ff](https://github.com/mbleuer/lyne-components/commit/d0927ff4f568c426b2eb89da39d1716afa25989b))
+* **sbb-toggle:** deal with undefined option component ([#2327](https://github.com/mbleuer/lyne-components/issues/2327)) ([97a4061](https://github.com/mbleuer/lyne-components/commit/97a40610abea58f3d9f85880e4f96e0ad9a075b5))
+* **sbb-toggle:** initial animation glitch ([#2321](https://github.com/mbleuer/lyne-components/issues/2321)) ([6c217e9](https://github.com/mbleuer/lyne-components/commit/6c217e933eb21cfdcd618967ec16db61005d4b8c))
+* **scrollbar:** fix track color in nested context ([#2363](https://github.com/mbleuer/lyne-components/issues/2363)) ([82a4ad8](https://github.com/mbleuer/lyne-components/commit/82a4ad8457e7528587af7d974821ff30e190cff6))
+* **selection-panel:** fix typo ([#2347](https://github.com/mbleuer/lyne-components/issues/2347)) ([074b63b](https://github.com/mbleuer/lyne-components/commit/074b63b85f32c9dee016e094f8c6e21ff8ffe90c))
+* set colspan properly ([0215e00](https://github.com/mbleuer/lyne-components/commit/0215e00d9aad145b1f5d26b1b00470c79c8e8640))
+* stories with label bold for sbb-checkbox and sbb-radio-button ([#2528](https://github.com/mbleuer/lyne-components/issues/2528)) ([9e85be5](https://github.com/mbleuer/lyne-components/commit/9e85be5d1c63c309e583402162f67e59e78bb897))
+* update import paths missed in the migration ([#2579](https://github.com/mbleuer/lyne-components/issues/2579)) ([9c90fa8](https://github.com/mbleuer/lyne-components/commit/9c90fa88f83978bc163ab886b968cff13327ed9b))
+* use renderAttributesOnCreate for react ([#2323](https://github.com/mbleuer/lyne-components/issues/2323)) ([1de1379](https://github.com/mbleuer/lyne-components/commit/1de1379f249efbc75778c5819dd1ffde0097926d))
+* use valid import/export syntax ([#2563](https://github.com/mbleuer/lyne-components/issues/2563)) ([585cfc5](https://github.com/mbleuer/lyne-components/commit/585cfc52091a66c4da7d88fb781a7d419cc35ff0))
+
+
+### Documentation
+
+* **multiple:** remove undefined type from titleLevel ([#2447](https://github.com/mbleuer/lyne-components/issues/2447)) ([c2532cd](https://github.com/mbleuer/lyne-components/commit/c2532cdd5a1aa3ca574f8d1a711b4ca3ac68ba12))
+
+
+### Styles
+
+* **color:** remove 'default' suffix from color tokens ([77454de](https://github.com/mbleuer/lyne-components/commit/77454de9e1fae3e9ef5c4dc39d0bc4c9f5f63ea8))
+
+
+### Code Refactoring
+
+* re-structure common behaviors ([#2533](https://github.com/mbleuer/lyne-components/issues/2533)) ([906d576](https://github.com/mbleuer/lyne-components/commit/906d5764b113a725c064d695e8e997f83c9628f4)), closes [#2534](https://github.com/mbleuer/lyne-components/issues/2534)
+* remove unused components ([e3b29eb](https://github.com/mbleuer/lyne-components/commit/e3b29eb1af4c7bfa49a24b22fa63214a789b0043))
+* rename component name from `sbb-screenreader-only` to `sbb-screeen-reader-only` ([#2520](https://github.com/mbleuer/lyne-components/issues/2520)) ([6fbf085](https://github.com/mbleuer/lyne-components/commit/6fbf085dab84d64acac5151ed09dd29a8bc3d034))
+* restructure entry points ([#2575](https://github.com/mbleuer/lyne-components/issues/2575)) ([3d4c8ab](https://github.com/mbleuer/lyne-components/commit/3d4c8ab34f63315548009c31920d89ce8235024f))
+* **sbb-calendar:** implement initial support for other date libraries ([#2511](https://github.com/mbleuer/lyne-components/issues/2511)) ([6d4e9c2](https://github.com/mbleuer/lyne-components/commit/6d4e9c2d22ae9cdf4d2ea73cbca650fd6d3ec4c2))
+* **sbb-navigation:** improve active handling and focus ([4f8f309](https://github.com/mbleuer/lyne-components/commit/4f8f3099e6864e711a80027f5bce4b079dd6902f))
+
 ## [0.50.2](https://github.com/lyne-design-system/lyne-components/compare/v0.50.1...v0.50.2) (2024-04-16)
 
 
